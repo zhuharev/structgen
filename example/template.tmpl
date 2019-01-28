@@ -1,0 +1,24 @@
+package models
+{{ define "struct"}}
+{{ range .EnumFields }}type {{ $.TitleName }}{{ .TitleName }} int
+{{ $field := . }}
+
+const ({{ range $i, $const := .Consts}}
+  {{ if eq $i 0 }}{{$.TitleName}}{{ .TitleName }} {{ $.TitleName }}{{ $field.TitleName }} = iota + 1{{ else }}{{$.TitleName}}{{ .TitleName }}{{ end }}{{ end }}
+)
+
+{{ end }}
+
+type {{ .TitleName }} struct {
+	tableName struct{} `sql:"tickets,alias:t" pg:",discard_unknown_columns"`
+
+{{ range .Fields }}
+  {{ .TitleName }}     {{ .ComputedType }} {{with .Tags}}`{{ range $i, $r := . }}{{if not (eq $i 0)}} {{ end }}{{ .Name }}:"{{.Value}}"{{end}}`{{end}}{{ end }}
+}
+{{ end }}
+
+{{ range .structs }}
+{{ template "struct" . }}
+{{ end }}
+
+

@@ -1,0 +1,25 @@
+structs:
+  - name: ticket
+    fields:
+      - name: type
+        type: enum
+        consts:
+          - name: moderationRequestPermissions
+          - name: offerModeration
+      - name: title
+        type: string
+      - name: text
+        type: string
+
+sharedFields:
+  - name: id
+    type: int
+    inAllStructs: true
+  - name: createdAt
+    type: time
+    inAllStructs: true
+  - name: updatedAt
+    type: time
+    inAllStructs: true
+
+sharedTags: [json, sql]
