@@ -10,16 +10,29 @@ structs:
         type: string
       - name: text
         type: string
+      - name: objectId
+        type: int
 
 sharedFields:
   - name: id
     type: int
     inAllStructs: true
+    tags:
+      - name: xorm
+        value: "pk autoincr '{kind}Id'"
+      - name: sql
+        value: "{kind}Id"
   - name: createdAt
     type: time
     inAllStructs: true
   - name: updatedAt
     type: time
     inAllStructs: true
+  - name: params
+    type: params
+    inAllStructs: true
+    tags:
+      - name: xorm
+        value: jsonb notnull default '{}'
 
-sharedTags: [json, sql]
+sharedTags: [json, sql, xorm]

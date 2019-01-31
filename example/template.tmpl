@@ -10,11 +10,16 @@ const ({{ range $i, $const := .Consts}}
 {{ end }}
 
 type {{ .TitleName }} struct {
-	tableName struct{} `sql:"tickets,alias:t" pg:",discard_unknown_columns"`
+	tableName struct{} `sql:"{{ .PluralName }},alias:t" pg:",discard_unknown_columns"`
 
 {{ range .Fields }}
-  {{ .TitleName }}     {{ .ComputedType }} {{with .Tags}}`{{ range $i, $r := . }}{{if not (eq $i 0)}} {{ end }}{{ .Name }}:"{{.Value}}"{{end}}`{{end}}{{ end }}
+  {{ .TitleName }}     {{ .ComputedType }} {{with .Tags}}`{{ range $i, $r := . }}{{if not (eq $i 0)}} {{ end }}{{ .Name }}:"{{.FmtValue}}"{{end}}`{{end}}{{ end }}
 }
+
+func (t *{{ .TitleName }}) TableName() string {
+  return "{{ .PluralName }}"
+}
+
 {{ end }}
 
 {{ range .structs }}
