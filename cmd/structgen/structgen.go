@@ -5,28 +5,59 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"text/template"
 
+	"github.com/urfave/cli"
 	"github.com/zhuharev/structgen"
 	yaml "gopkg.in/yaml.v2"
 )
 
+const (
+	FlagConfig   = "config"
+	FlagTemplate = "template"
+	FlagOut      = "out"
+)
+
 func main() {
-	t, err := template.ParseFiles("template.tmpl")
+	app := &cli.App{
+		Action: run,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  FlagConfig + ", c",
+				Value: "structs.yml",
+			},
+			cli.StringFlag{
+				Name:  FlagTemplate + ", t",
+				Value: "template.tmpl",
+			},
+			cli.StringFlag{
+				Name:  FlagOut + ", o",
+				Usage: "destination folder",
+				Value: "models/",
+			},
+		},
+	}
+	app.Run(os.Args)
+
+}
+
+func run(ctx *cli.Context) (err error) {
+	t, err := template.ParseFiles(ctx.String(FlagTemplate))
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	var s structgen.Schema
 
-	data, err := ioutil.ReadFile("example.yml")
+	data, err := ioutil.ReadFile(ctx.String(FlagConfig))
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	err = yaml.Unmarshal(data, &s)
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	s.Init()
@@ -39,9 +70,14 @@ func main() {
 		"structs": s.Structs,
 	})
 	if err != nil {
-		panic(err)
+		return
 	}
 
-	ioutil.WriteFile("out.go", b.Bytes(), os.ModePerm)
+	err = os.MkdirAll(ctx.String(FlagOut), os.ModePerm)
+	if err != nil {
+		return
+	}
 
+	err = ioutil.WriteFile(filepath.Join(ctx.String(FlagOut), "models_gen.go"), b.Bytes(), os.ModePerm)
+	return
 }
